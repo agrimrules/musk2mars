@@ -152,7 +152,10 @@ function setup() {
   musk.vx = 0, musk.vy = 0
   musk.radius = 16
   stage.addChild(musk)
-
+  musk.on('touchstart', dragstart)
+  musk.on('touchend', dragend)
+  musk.on('touchendoutside', dragend)
+  musk.on('touchmove', drag)
   // enemies
   initEnemies()
 
@@ -170,19 +173,17 @@ function setup() {
 ///// setup user input
 //////////////////////////////
 var left = keyboard(37, 65)
-//        || keyboard(65)
 var up = keyboard(38, 87)
-//var wkey = keyboard(87)
 var right = keyboard(39, 68)
-//var dkey = keyboard(68)
 var down = keyboard(40, 83)
-//var skey = keyboard(83)
 var enter = keyboard(13)
 
 left.press = function() {
   musk.vx = -1*SPEED
   musk.vy = 0
 }
+
+
 
 left.release = function() {
   // if the left arrow has been released, and the right arrow isn't down,
@@ -233,8 +234,35 @@ enter.release = function() {
 
 var keys = [left, up, right, down, enter]
 
-
 //////////////////////////////
+///// Touch Events
+//////////////////////////////
+function dragstart(event)
+{
+  // store a reference to the data
+  // the reason for this is because of multitouch
+  // we want to track the movement of this particular touch
+  this.data = event.data;
+  this.alpha = 0.5;
+  this.dragging = true;
+}
+
+function dragend(event)
+{
+  this.data = null;
+  this.alpha = 1;
+  this.dragging = false;
+}
+
+function drag()
+{
+  if (this.dragging)
+  {
+    var newPosition = this.data.getLocalPosition(this.parent);
+    this.position.x = newPosition.x;
+    this.position.y = newPosition.y;
+  }
+}
 ///// setup game loop
 //////////////////////////////
 function state() {
